@@ -117,7 +117,7 @@ def usersession(request, username):
 
 # '/username/deployment/'
 def deployment(request, username):	
-	rallycmd = RallyUtility()
+	rallycmd = RallyUtility('/usr/local/bin/', '/home/%s/' % (username), '/home/%s' % (username))
 	message  = 'All is Well for %s' %(username)
 	#login is success, we need to fetch this user session from the DB.
 	try:
@@ -176,20 +176,18 @@ def deployment(request, username):
 			numdeployments = numdeployments + 1
 			depls.append(adepl)
 		#list scenarios
-		rally_scenes = rallycmd.rally_scenarios_list()
-		for ascene in rally_scenes:
-   			objScene = Scenario(scenario_type=ascene[0], scenario_file_name=ascene[1])
-			objScene.save()
+		scene_by_type = rallycmd.scenario_list()
+		for acomponent in scene_by_type.keys():
+			scenes = scene_by_type[acomponent]
+			for scene in scenes:
+	   			objScene = Scenario(scenario_type=acomponent, scenario_file_name=scene)
+				objScene.save()
 
 		#interested in neutron, nova scenarios
-		try:
-			scenes = []
-			scenes = Scenario.objects.filter(scenario_type='neutron')
-			scene_by_type['neutron'] = scenes
-
-			scenes = Scenario.objects.filter(scenario_type='nova')
-			scene_by_type['nova'] = scenes
-			
+		try:			
+			for typ in ('neutron', 'nova', 'cinder'):
+				scenes = Scenario.objects.filter(scenario_type=typ)
+				scene_by_type[typ] = scenes			
 		except Scenario.DoesNotExist:
 			pass
 
