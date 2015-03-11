@@ -3,21 +3,25 @@ import sys
 import subprocess
 import re
 
+from os import listdir
+from os.path import isfile, join, isdir
+
 class UserContext:
 
-	def __init__(self, name, deployments, scenarios, args):
-		
-		self.username = name
-		self.deployment = deployments
-		self.scenarios  = scenarios 
+    def __init__(self, name, deployments, scenarios, args):
+        
+        self.username = name
+        self.deployment = deployments
+        self.scenarios  = scenarios 
 
-		self.results	= {}
-		self.args	= args.copy()
+        self.results    = {}
+        self.args    = args.copy()
 
 class RallyUtility:
         
-    def __init__(self, rally_installdir=None, rally_datadir=None):
-        self.installdir = rally_installdir
+    def __init__(self, rally_bindir=None, rally_datadir=None, rally_userdir=None):
+        self.bindir = rally_bindir
+        self.userdir = rally_userdir
         self.datadir = rally_datadir
         self.version = '0.0.1'
         self.cmdtable = {
@@ -29,9 +33,12 @@ class RallyUtility:
                 'Execute_rallytests' : '%s/rally -v --rally-debug task start %s/%s',
                 #/usr/bin/rally, /home/sudhakso, taskid.html
                 'View_report' : '%s/rally task report %s --out %s/%s',
-		#/usr/bin/rally, /home/sudhakso, name
-		'Deployment_destroy', '%s/rally deployment destroy %s',
+                #/usr/bin/rally, /home/sudhakso, name
+                'Deployment_destroy': '%s/rally deployment destroy %s',
+                #/usr/bin/rally, /home/sudhakso, name
+                'Deployment_list': '%s/rally deployment list'
                 }
+        self.supported_components = ['nova', 'neutron', 'cinder']
         
     #Construct        
     def deployment_create(self, deployment_friendly_name, 
@@ -45,7 +52,7 @@ class RallyUtility:
             osc_tenant_password):
 
         #json file path (eg: /home/sudhakso/sudhakso.json
-        deployment_json = '%s/%s.json' % (self.datadir,deployment_owner)
+        deployment_json = '%s/%s.json' % (self.userdir,deployment_owner)
         deployment_id = -1
         #create temporary deployment file
         with open(deployment_json, "w") as jsonfile:
@@ -71,7 +78,7 @@ class RallyUtility:
                             "tenant_name": osc_tenant_name                    
                         }
                     }, jsonfile, indent=4)        
-        rally_cmdline = self.cmdtable['Deployment_create'] % (self.installdir, deployment_json, deployment_friendly_name)
+        rally_cmdline = self.cmdtable['Deployment_create'] % (self.bindir, deployment_json, deployment_friendly_name)
         matched_lines = []
         pat_to_match  = r'Using deployment?[ ]*\:[\s+]([-a-z0-9]*)'
         #run the command and match the result
@@ -92,7 +99,7 @@ class RallyUtility:
     def deployment_check(self, deployment_friendly_name):
         
         depl_status = {}
-        rally_cmdline = self.cmdtable['Deployment_check'] % (self.installdir, deployment_friendly_name)
+        rally_cmdline = self.cmdtable['Deployment_check'] % (self.bindir, deployment_friendly_name)
         matched_lines = []
         pat_to_match  = r'\|[\s+]([a-zA-Z]*)\s+'
         #run the command and match the result
@@ -118,20 +125,44 @@ class RallyUtility:
                 pass            
         return depl_status
     
+      #Listing deployment
+      #rally deployment list
+      #+--------------------------------------+----------------------------+----------------------+------------------+--------+
+      #| uuid                                 | created_at                 | name                 | status           | active |
+      #+--------------------------------------+----------------------------+----------------------+------------------+--------+
+      #| e0411659-23c4-4c67-861b-95abfc648e91 | 2014-07-17 21:54:12.674379 | existing             | deploy->finished |        |
+      #| ec5cda02-69ef-4302-a32b-6e410206f957 | 2014-07-19 02:55:21.570264 | existing1            | deploy->finished |        |
+      #| 972fc4e9-d203-486c-8a97-4747358c5166 | 2014-08-17 02:52:40.923453 | myfriendlydeployment | deploy->finished | *      |
+      #+--------------------------------------+----------------------------+----------------------+------------------+--------+
+    def deployment_list(self):
+         pass
+
+    #List scenarios
+    def scenario_list(self):
+    #{'nova':[], 'neutron':[], 'cinder':[]}
+            lookupdir = []
+	    lookupdir.append(self.datadir + '/rally/samples/tasks/scenarios/')
+            lookupdir.append(self.datadir + '/rally/scenarios/')
+            lookupdir.append(self.userdir + '/rally/scenarios/')
+
+            scenario_by_type = {}
+    
+            for loc in lookupdir:
+                if (isdir( loc)):
+                    allcomponents = [ f for f in listdir(loc) if isdir(join(loc,f)) ]
+                    c = set(self.supported_components).intersection(allcomponents)
+                    for acomp in c:
+			compdir = loc + acomp
+                        allfiles_by_component = [ f for f in listdir(compdir) if isfile(join(compdir,f)) ]
+                        scenario_by_type[acomp] = allfiles_by_component
+                else:
+                    pass
+            return scenario_by_type    
+
     #Destroy
     def deployment_delete(self, deployment_friendly_name):
         pass
     
-    def rally_scenarios_list(self, component_types = {'neutron', 'nova'}):
-        scene_by_type_list = []    
-        scene_neutron_tuple = ('neutron', 'sample_scene')
-        scene_nova_tuple = ('nova', 'sample_scene')
-        
-        scene_by_type_list.append(scene_neutron_tuple)
-        scene_by_type_list.append(scene_nova_tuple)
-
-        return scene_by_type_list
-
     def rally_run_scenarios(self, deployment_friendly_name, scenario_listing = []):
         pass
     
@@ -172,16 +203,22 @@ class RallyUtility:
 
 def main(args):
     print 'Creating...'
-    commander = RallyUtility('/usr/local/bin/', '/home/sudhakso')
-    id = commander.deployment_create('myfriendlydeployment', 
-                                'sudhakso', 'existing', 'http://junk:5000/v2.0/auth', 'public', '', 'admin', 'demo', 'iso*help')
-    print '######################' 
-    print id
-    print '######################'
+    scene_by_component = {}
+    commander = RallyUtility('/usr/local/bin/', '/home/sudhakso/', '/home/sudhakso')
+    #id = commander.deployment_create('myfriendlydeployment', 
+    #                           'sudhakso', 'existing', 'http://junk:5000/v2.0/auth', 'public', '', 'admin', 'demo', 'iso*help')
+    #print '######################' 
+    #print id
+    #print '######################'
 
     depls = commander.deployment_check('existing') 
     print '#####################' 
     print depls
+    print '#####################'
+    
+    scene_by_component = commander.scenario_list()
+    print '#####################' 
+    print scene_by_component
     print '#####################'
     
 if __name__ == '__main__':
