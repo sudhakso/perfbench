@@ -199,7 +199,15 @@ def deployment(request, username):
 		pass	
 	
 	#Create a user context to show in deployment
-	_context = {'username': auser.username, 'deployments': depls, 'scenarios': scene_by_type, 'state':message, 'ErrorCode':err, 'numdeployments':numdeployments}
+	_context = {
+			'username': auser.username, 
+			'deployments': depls,
+			'scenariotypes' : ['nova', 'neutron', 'cinder'],
+			'scenarios': scene_by_type, 
+			'state':message, 
+			'ErrorCode':err, 
+			'numdeployments':numdeployments
+		   }
 	deploymentcontext = RequestContext(request, _context)		
 	return render_to_response('rallybench/deployment.html', context_instance=deploymentcontext)
 

@@ -125,7 +125,17 @@
 	     </tbody>
            </table>
           </div>
-	
+	  <div class="container-fluid">
+	   <h2>Component to Rally</h2>
+	   <p>Choose the components to rally with:</p>
+	   <form role="form" action="/rallybench/{{username}}/deployment/" method="post">
+	    {% for atype in scenariotypes %}
+		<label class="checkbox-inline">
+		   <input type="checkbox" name = "{{ atype }}" value="{{ atype }}"> {{ atype }}
+		</label>
+	    {% endfor %}
+	   </form>
+ 	 </div>
 	 <div class="container-fluid">
 	 <h2 class="sub-header"> Scenarios ({{numscenarios}})</h2>
           <div class="table-responsive">
