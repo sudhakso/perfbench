@@ -28,7 +28,9 @@ class RallyUtility:
                 #/usr/bin/rally, rally/samples/tasks/scenarios/nova, scenario.json
                 'Execute_rallytests' : '%s/rally -v --rally-debug task start %s/%s',
                 #/usr/bin/rally, /home/sudhakso, taskid.html
-                'View_report' : '%s/rally task report %s --out %s/%s'
+                'View_report' : '%s/rally task report %s --out %s/%s',
+		#/usr/bin/rally, /home/sudhakso, name
+		'Deployment_destroy', '%s/rally deployment destroy %s',
                 }
         
     #Construct        
