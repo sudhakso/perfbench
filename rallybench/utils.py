@@ -72,7 +72,7 @@ class RallyUtility:
                         "auth_url": osc_auth_url,
                         "region_name": osc_region_name,
                         "endpoint_type": osc_endpoint_type,
-                         osc_tenant_name: {
+                         "admin": {
                             "username":osc_tenant_user,
                             "password":osc_tenant_password,
                             "tenant_name": osc_tenant_name                    

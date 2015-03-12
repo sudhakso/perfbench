@@ -117,8 +117,9 @@ def usersession(request, username):
 
 # '/username/deployment/'
 def deployment(request, username):	
-	rallycmd = RallyUtility('/usr/local/bin/', '/home/%s/' % (username), '/home/%s' % (username))
-	message  = 'All is Well for %s' %(username)
+        #TBD: user profile to contain the home dir
+	rallycmd = RallyUtility('/usr/local/bin/', '/home/%s/rally' % (username), '/home/%s' % (username))
+	message  = 'All is Well for %s' %(username)	
 	#login is success, we need to fetch this user session from the DB.
 	try:
 		auser = RallyUser.objects.get(username=username)
@@ -152,7 +153,14 @@ def deployment(request, username):
 							osc_tenant_name=osc_tenant_name, 	
 							osc_tenant_user=osc_tenant_user_name, 
 							osc_tenant_password=osc_tenant_password)
-		
+		allservices_up = True
+		availability = rallycmd.deployment_check(friendly_name)
+		for aComp in availability.keys():
+			if aComp == 'services':
+				pass
+			if availability[aComp] != 'Available':
+				allservices_up = False
+
 		deployment = Deployment(user=auser, uniqueid=deployment_id, 
 				osc_friendly_name=friendly_name, 
 				osc_tenant_name=osc_tenant_name, 
@@ -162,6 +170,9 @@ def deployment(request, username):
 				osc_type=deployment_type,
 				osc_endpoint_type=osc_endpoint_type,
 				osc_region_name=osc_region_name)
+		if allservices_up:
+			deployment.validated = True
+
 		#save the deployment
 		deployment.save()
 		
