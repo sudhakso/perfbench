@@ -153,7 +153,7 @@ class RallyUtility:
                     c = set(self.supported_components).intersection(allcomponents)
                     for acomp in c:
 			compdir = loc + acomp
-                        allfiles_by_component = [ f for f in listdir(compdir) if isfile(join(compdir,f)) ]
+                        allfiles_by_component = [ f for f in listdir(compdir) if (isfile(join(compdir,f)) and f.endswith('.json')) ]
                         scenario_by_type[acomp] = allfiles_by_component
                 else:
                     pass

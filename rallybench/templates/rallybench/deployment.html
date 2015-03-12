@@ -142,16 +142,20 @@
            <table class="table table-striped">
              <thead>
                <tr>
+		 <th>Select</th>
                  <th>Type</th>
                  <th>Scenario Name</th>
                </tr>
              </thead>
              <tbody>
 		{% for scene in scenarios %}
-	      <tr>		 
-		<td>{{ scene.scenario_type }}</td>
-		<td>{{ scene.scenario_file_name }}</td>
-	       </tr>
+		      <tr>		 
+			<td>
+            		  <input type="checkbox" name="scenario_selector" style="text-align:center; vertical-align: middle;">    
+			</td> 
+			<td>{{ scene.scenario_type }}</td>
+			<td>{{ scene.scenario_file_name }}</td>
+		      </tr>
 		{%endfor%}
 	     </tbody>
            </table>

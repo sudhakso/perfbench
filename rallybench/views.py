@@ -153,6 +153,14 @@ def deployment(request, username):
 							osc_tenant_name=osc_tenant_name, 	
 							osc_tenant_user=osc_tenant_user_name, 
 							osc_tenant_password=osc_tenant_password)
+		#if deployment_id == -1:
+		#	errorcontext = RequestContext(request, {
+		#	'state': 'Fatal error while creating a deployment.',
+		#	'ErrorCode': 503,
+		#	'username': username		
+	    	#	})
+		#	return render_to_response('rallybench/error.html', context_instance=errorcontext)
+	
 		allservices_up = True
 		availability = rallycmd.deployment_check(friendly_name)
 		for aComp in availability.keys():
@@ -160,6 +168,7 @@ def deployment(request, username):
 				pass
 			if availability[aComp] != 'Available':
 				allservices_up = False
+				break
 
 		deployment = Deployment(user=auser, uniqueid=deployment_id, 
 				osc_friendly_name=friendly_name, 
@@ -178,7 +187,7 @@ def deployment(request, username):
 		
 	#list deployments
 	depls = []	
-	scene_by_type = {}
+	scenarios = {}
 	err = 0
 	numdeployments = 0
 	try:
@@ -188,17 +197,19 @@ def deployment(request, username):
 			depls.append(adepl)
 		#list scenarios
 		scene_by_type = rallycmd.scenario_list()
+		numscenarios = 0
 		for acomponent in scene_by_type.keys():
 			scenes = scene_by_type[acomponent]
 			for scene in scenes:
-	   			objScene = Scenario(scenario_type=acomponent, scenario_file_name=scene)
-				objScene.save()
+				if len(Scenario.objects.filter(scenario_file_name=scene)) == 0:
+		   			objScene = Scenario(scenario_type=acomponent, scenario_file_name=scene)
+					objScene.save()
 
 		#interested in neutron, nova scenarios
 		try:			
-			for typ in ('neutron', 'nova', 'cinder'):
-				scenes = Scenario.objects.filter(scenario_type=typ)
-				scene_by_type[typ] = scenes			
+			numscenario = 0
+			scenarios = Scenario.objects.all()			
+			numscenario = numscenario + len(scenes)			
 		except Scenario.DoesNotExist:
 			pass
 
@@ -212,10 +223,11 @@ def deployment(request, username):
 			'username': auser.username, 
 			'deployments': depls,
 			'scenariotypes' : ['nova', 'neutron', 'cinder'],
-			'scenarios': scene_by_type, 
+			'scenarios': scenarios, 
 			'state':message, 
 			'ErrorCode':err, 
-			'numdeployments':numdeployments
+			'numdeployments':numdeployments,
+			'numscenarios':numscenarios
 		   }
 	deploymentcontext = RequestContext(request, _context)		
 	return render_to_response('rallybench/deployment.html', context_instance=deploymentcontext)
