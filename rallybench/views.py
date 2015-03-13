@@ -209,7 +209,7 @@ def deployment(request, username):
 		try:			
 			numscenario = 0
 			scenarios = Scenario.objects.all()			
-			numscenario = numscenario + len(scenes)			
+			numscenario = numscenario + len(scenarios)			
 		except Scenario.DoesNotExist:
 			pass
 
