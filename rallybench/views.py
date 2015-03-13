@@ -117,8 +117,9 @@ def usersession(request, username):
 
 # '/username/deployment/'
 def deployment(request, username):	
-	rallycmd = RallyUtility()
-	message  = 'All is Well for %s' %(username)
+        #TBD: user profile to contain the home dir
+	rallycmd = RallyUtility('/usr/local/bin/', '/home/%s/rally' % (username), '/home/%s' % (username))
+	message  = 'All is Well for %s' %(username)	
 	#login is success, we need to fetch this user session from the DB.
 	try:
 		auser = RallyUser.objects.get(username=username)
@@ -152,7 +153,23 @@ def deployment(request, username):
 							osc_tenant_name=osc_tenant_name, 	
 							osc_tenant_user=osc_tenant_user_name, 
 							osc_tenant_password=osc_tenant_password)
-		
+		#if deployment_id == -1:
+		#	errorcontext = RequestContext(request, {
+		#	'state': 'Fatal error while creating a deployment.',
+		#	'ErrorCode': 503,
+		#	'username': username		
+	    	#	})
+		#	return render_to_response('rallybench/error.html', context_instance=errorcontext)
+	
+		allservices_up = True
+		availability = rallycmd.deployment_check(friendly_name)
+		for aComp in availability.keys():
+			if aComp == 'services':
+				pass
+			if availability[aComp] != 'Available':
+				allservices_up = False
+				break
+
 		deployment = Deployment(user=auser, uniqueid=deployment_id, 
 				osc_friendly_name=friendly_name, 
 				osc_tenant_name=osc_tenant_name, 
@@ -162,12 +179,15 @@ def deployment(request, username):
 				osc_type=deployment_type,
 				osc_endpoint_type=osc_endpoint_type,
 				osc_region_name=osc_region_name)
+		if allservices_up:
+			deployment.validated = True
+
 		#save the deployment
 		deployment.save()
 		
 	#list deployments
 	depls = []	
-	scene_by_type = {}
+	scenarios = {}
 	err = 0
 	numdeployments = 0
 	try:
@@ -176,20 +196,20 @@ def deployment(request, username):
 			numdeployments = numdeployments + 1
 			depls.append(adepl)
 		#list scenarios
-		rally_scenes = rallycmd.rally_scenarios_list()
-		for ascene in rally_scenes:
-   			objScene = Scenario(scenario_type=ascene[0], scenario_file_name=ascene[1])
-			objScene.save()
+		scene_by_type = rallycmd.scenario_list()
+		numscenarios = 0
+		for acomponent in scene_by_type.keys():
+			scenes = scene_by_type[acomponent]
+			for scene in scenes:
+				if len(Scenario.objects.filter(scenario_file_name=scene)) == 0:
+		   			objScene = Scenario(scenario_type=acomponent, scenario_file_name=scene)
+					objScene.save()
 
 		#interested in neutron, nova scenarios
-		try:
-			scenes = []
-			scenes = Scenario.objects.filter(scenario_type='neutron')
-			scene_by_type['neutron'] = scenes
-
-			scenes = Scenario.objects.filter(scenario_type='nova')
-			scene_by_type['nova'] = scenes
-			
+		try:			
+			numscenario = 0
+			scenarios = Scenario.objects.all()			
+			numscenario = numscenario + len(scenes)			
 		except Scenario.DoesNotExist:
 			pass
 
@@ -199,7 +219,16 @@ def deployment(request, username):
 		pass	
 	
 	#Create a user context to show in deployment
-	_context = {'username': auser.username, 'deployments': depls, 'scenarios': scene_by_type, 'state':message, 'ErrorCode':err, 'numdeployments':numdeployments}
+	_context = {
+			'username': auser.username, 
+			'deployments': depls,
+			'scenariotypes' : ['nova', 'neutron', 'cinder'],
+			'scenarios': scenarios, 
+			'state':message, 
+			'ErrorCode':err, 
+			'numdeployments':numdeployments,
+			'numscenarios':numscenarios
+		   }
 	deploymentcontext = RequestContext(request, _context)		
 	return render_to_response('rallybench/deployment.html', context_instance=deploymentcontext)
 
