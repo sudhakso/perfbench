@@ -238,10 +238,64 @@ def scenario(request, username):
 
 # '/username/task/'
 def task(request, username):
-	return HttpResponse("For user %s, listing tasks ..." % (username))
+	tasks = []
+	sceneobjs = []
+	scenes = []
+	numtasks = 0
+	try:
+		taskQuerySet = RallyTask.objects.filter(user_id__username=username)
+		for atask in taskQuerySet:
+			numtasks = numtasks + 1
+			sceneobjs = atask.scenarios.all()
+			for ascene in sceneobjs:
+				scenes.append(ascene.scenario_file_name)		
+			tasks.append(atask)
+	except RallyTask.DoesNotExist:
+		pass
+	#Create a user context to show in tasklist
+	_context = {
+			'username': username, 
+			'numtasks': len(tasks),
+			'scenarios' : scenes,
+			'tasks': tasks
+		   }
+	tasklistcontext = RequestContext(request, _context)		
+	return render_to_response('rallybench/tasklist.html', context_instance=tasklistcontext)
 
 # '/username/result/'
 def result(request, username):
 	return HttpResponse("For user %s, listing result ..." % (username))
+
+#run a rally task
+#create a rallytask instance and store objects
+def create_task(request, username, deployment_friendly_name, scenario_objs_selected = []):
+	#TBD: User home directory to be set via profile
+	rallycmd = RallyUtility('/usr/local/bin/', '/home/%s/rally' % (username), '/home/%s' % (username))
+
+	try:
+		auser = RallyUser.objects.get(username=username)
+	except RallyUser.DoesNotExist:
+		errorcontext = RequestContext(request, {
+			'state': 'Fatal error while loading user. Happened while creating benchmark task.',
+			'ErrorCode': 503,
+			'username': username		
+	    		})
+		return render_to_response('rallybench/error.html', context_instance=errorcontext)
+
+	#names are enough	
+	scenario_names = []
+	taskId = rallycmd.rally_run_scenarios(deployment_friendly_name, scenario_names)
+	
+	if taskId != -1:
+		task = RallyTask(user_id=auser, task_id=taskId)
+		for aobj in scenario_objs_selected:
+			task.scenarios.add(aobj)
+		task.save()
+	
+
+	
+
+
+
 
 

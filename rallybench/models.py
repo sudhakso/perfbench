@@ -82,13 +82,21 @@ class Deployment(models.Model):
 
 #Schema for individual task
 class RallyTask(models.Model):
-	#Deployment in use
-	deployment_id = models.ForeignKey(Deployment)
+	#user in use
+	user_id = models.ForeignKey(RallyUser)
+	#scenarios in use
+	scenarios = models.ManyToManyField(Scenario)
+
 	#Key
 	task_id = models.CharField(max_length=50, primary_key=True)
 
 	is_running = models.BooleanField(default=False)
 	output_folder = models.CharField(max_length=256)
+	#created time
+	created_time   = models.DateField()
+	finished_time  = models.DateField()
+	#deployment used
+	deployment_name = models.CharField(max_length=50, default='default')
 	
 
 	
