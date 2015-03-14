@@ -95,6 +95,7 @@ class RallyTask(models.Model):
 	#created time
 	created_time   = models.DateField()
 	finished_time  = models.DateField()
+	task_status    = models.CharField(max_length=50, default='Build')
 	#deployment used
 	deployment_name = models.CharField(max_length=50, default='default')
 	

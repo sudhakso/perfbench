@@ -236,7 +236,7 @@ def deployment(request, username):
 def scenario(request, username):
 	return HttpResponse("For user %s, listing scenario ..." % (username))
 
-# '/username/task/'
+# '/username/tasklist/'
 def task(request, username):
 	tasks = []
 	sceneobjs = []
@@ -284,12 +284,19 @@ def create_task(request, username, deployment_friendly_name, scenario_objs_selec
 
 	#names are enough	
 	scenario_names = []
-	taskId = rallycmd.rally_run_scenarios(deployment_friendly_name, scenario_names)
+	(task_id, task_status, start_time, end_time) = rallycmd.rally_run_scenarios(deployment_friendly_name, scenario_names)
 	
-	if taskId != -1:
-		task = RallyTask(user_id=auser, task_id=taskId)
+	#Add task to the databse for tracking
+	if task_id != -1:
+		task = RallyTask(user_id=auser, task_id=task_id)
+		task.status = task_status
 		for aobj in scenario_objs_selected:
 			task.scenarios.add(aobj)
+			if task_status == 'started' or task_status == 'finished':
+				task.created_time = start_time
+				task.task_status = task_status
+				if end_time != None:
+					task.finished_time = end_time					
 		task.save()
 	
 

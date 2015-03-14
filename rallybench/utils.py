@@ -30,13 +30,15 @@ class RallyUtility:
                 #/usr/bin/rally, favouritedeployment-name
                 'Deployment_check'  : '%s/rally deployment check %s',
                 #/usr/bin/rally, rally/samples/tasks/scenarios/nova, scenario.json
-                'Execute_rallytests' : '%s/rally -v --rally-debug task start %s/%s',
+                'Deployment_use'  : '%s/rally use deployment %s',
+                #/usr/bin/rally, rally/samples/tasks/scenarios/nova, scenario.json
+                'Execute_rallytests' : '%s/rally -v --rally-debug task start %s 2>&1 | tee %s/%s',
                 #/usr/bin/rally, /home/sudhakso, taskid.html
                 'View_report' : '%s/rally task report %s --out %s/%s',
                 #/usr/bin/rally, /home/sudhakso, name
                 'Deployment_destroy': '%s/rally deployment destroy %s',
                 #/usr/bin/rally, /home/sudhakso, name
-                'Deployment_list': '%s/rally deployment list'
+                'Deployment_list': '%s/rally deployment list'        
                 }
         self.supported_components = ['nova', 'neutron', 'cinder']
         
@@ -141,7 +143,7 @@ class RallyUtility:
     def scenario_list(self):
     #{'nova':[], 'neutron':[], 'cinder':[]}
             lookupdir = []
-	    lookupdir.append(self.datadir + '/rally/samples/tasks/scenarios/')
+            lookupdir.append(self.datadir + '/rally/samples/tasks/scenarios/')
             lookupdir.append(self.datadir + '/rally/scenarios/')
             lookupdir.append(self.userdir + '/rally/scenarios/')
 
@@ -152,7 +154,7 @@ class RallyUtility:
                     allcomponents = [ f for f in listdir(loc) if isdir(join(loc,f)) ]
                     c = set(self.supported_components).intersection(allcomponents)
                     for acomp in c:
-			compdir = loc + acomp
+                        compdir = loc + acomp
                         allfiles_by_component = [ f for f in listdir(compdir) if (isfile(join(compdir,f)) and f.endswith('.json')) ]
                         scenario_by_type[acomp] = allfiles_by_component
                 else:
@@ -163,9 +165,84 @@ class RallyUtility:
     def deployment_delete(self, deployment_friendly_name):
         pass
     
-    def rally_run_scenarios(self, deployment_friendly_name, scenario_listing = []):
-        pass
+    def rally_run_scenarios(self, deployment_friendly_name, scene_type, scenario_listing = []):
+    #set the deployment to use
+        rally_cmdline = self.cmdtable['Deployment_use'] % (self.bindir, deployment_friendly_name)
+        matched_lines = []
+        pat_to_match  = r'(Using deployment)\:[ ]([-a-z0-9]*)'
+        deployment_ready_to_use = False
+        task_id = -1
+        task_status = 'build'
+            #run the command and match the result
+        try :
+            (exitCode, output, matched_lines) = self.execute(rally_cmdline, pat_to_match)
+            matches = len(matched_lines)
+            #multi-line match, 
+            #sudhakso@ubuntu:~$ rally use deployment existing
+            #Using deployment: e0411659-23c4-4c67-861b-95abfc648e91
+            if matches > 0:                
+                for amatch in matched_lines:
+                    if len(amatch) == 1: 
+            #consider a single match/line
+                        matches = amatch[0]
+                        if matches[0] == 'Using deployment' :                    
+                            deployment_ready_to_use = True
+                            break
+        except Exception:
+            pass
     
+        #validate deployment set to use    
+        if deployment_ready_to_use == False:
+            return (task_id, task_status, None, None)
+    
+        #load the scenario files
+        #TBD : Scenario collage
+	started_time = None
+	finished_time = None
+        lookupdir = []
+        lookupdir.append(self.datadir + ('/rally/samples/tasks/scenarios/%s/' % (scene_type)))
+        lookupdir.append(self.datadir + '/rally/scenarios/%s/' % (scene_type))
+        lookupdir.append(self.userdir + '/rally/scenarios/%s/' % (scene_type))
+        if len(scenario_listing) > 0:    
+            ####TBD take a list of scenario and collage it
+            ascenario = scenario_listing[0] 
+            foundscene = False
+            scenepath = ''
+            for eachdir in lookupdir:
+                scenepath = eachdir + ascenario 
+                print scenepath
+                if isfile(scenepath):
+                    foundscene = True
+                    break
+            if foundscene:
+                rally_cmdline = self.cmdtable['Execute_rallytests'] % (self.bindir, scenepath, self.userdir, deployment_friendly_name + '.log')
+                
+                 #Task  6fd9a19f-5cf8-4f76-ab72-2e34bb1d4996: started            
+                pat_to_match = r'\s?Task[ ]*([-a-z0-9]*)\:[ ]*([a-zA-Z]*)'
+                try :
+                            (exitCode, output, matched_lines) = self.execute(rally_cmdline, pat_to_match)
+                            matches = len(matched_lines)
+                            if len(matched_lines) > 0:                
+                                for amatch in matched_lines:
+                                    #consider a single match/line
+                                    matched = amatch[0]
+                                    #(task_id, task_status)
+                                    if len(matched) == 2: 
+                                        #fill the task id just started                    
+                                        task_id = matched[0]
+                                        task_status = matched[1]
+					if task_status == 'started':
+						started_time = timezone.now()
+					elif task_status == 'finished':
+						finished_time = timezone.now()
+
+                except Exception:
+                    pass
+                    
+                return (task_id, task_status, started_time, finshed_time) 
+           
+            return (task_id, task_status, None, None)
+
     def rally_launch_report(self, task_id):
         pass
 
@@ -221,8 +298,12 @@ def main(args):
     print scene_by_component
     print '#####################'
     
+    (taskid,taskstat) = commander.rally_run_scenarios('existing', scene_type='neutron', scenario_listing=['create_and_delete_networks.json'])
+    print (taskid,taskstat)
+    
 if __name__ == '__main__':
     main(sys.argv)
+
 
 
 
