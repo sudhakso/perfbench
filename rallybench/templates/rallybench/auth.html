@@ -16,10 +16,24 @@
  </head>
  
  <body>
- 
+     <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/"><img src= "{% static "rallybench/lib/img/hp.png" %}">Rally Bench</a>
+        </div>
+      </div>
+    </nav>
  <div class="container">
  	<div class="row">
- 		<div class="span5 offset3">
+ 		<div class="col-sm-3" id="moreInfo">
+ 		</div>
+ 		<div class="col-sm-6" id="moreInfo">
  			<div class="loginBox">
  				<div class="title">Log in to your account</div>
  				<form action="/rallybench/login/" method="post">
@@ -56,6 +70,7 @@
  					{% csrf_token %}
  				</form>
  			</div> <!-- end of loginBox -->
+ 			</div>
  		</div> <!--  end of span5 offset3 -->
  	</div> <!-- end of raw tag -->
  </div> <!-- end of container tag -->
