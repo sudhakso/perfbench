@@ -14,7 +14,7 @@
   <body>
 	<div class="container">
 	 <h2>Create a Deployment</h2>	
-	  <form class="form-horizontal" role="form" action="/rallybench/{{username}}/deployment/" method="post">
+	  <form class="form-horizontal" role="form" action="." method="post">
 		<div class="form-group">
 		 <label class="control-label col-sm-2" for="text">Name:</label>
 		 <div class="col-sm-10">
@@ -72,12 +72,14 @@
 	      </div>
 	      <div class="form-group">        
 	       <div class="col-sm-offset-2 col-sm-10">
-		<button type="submit" class="btn btn-primary">Create</button>
-	       </div>
-	      </div>
-	  {% csrf_token %}
+	        <form class="form-horizontal" action="." method="post">	 	
+	 	 <input type="submit" class="btn btn-success" value="Create Deployment" name="createdepl"/>
+		{% csrf_token %}
+	        </form>
+	       </div>	      
 	  </form>
 	</div>   
+	<form class="form-horizontal" role="form" action="." method="post">
 	<div class="container-fluid">
 	 <h2 class="sub-header">Openstack Deployments ({{numdeployments}})</h2>
           <div class="table-responsive">
@@ -97,7 +99,7 @@
 		{% for depl in deployments %}
 	      <tr>		
 		<td>
-        	 <input type="checkbox" name="deployment_selector" style="text-align:center; vertical-align: middle;">    
+        	 <input type="checkbox" name="deployment" value = "{{ depl.osc_friendly_name }}" style="text-align:center; vertical-align: middle;">    
 		</td> 
 		<td>{{ depl.uniqueid }}</td>
 		<td>{{ depl.osc_friendly_name }}</td>
@@ -112,14 +114,12 @@
           </div>
 	  <div class="container-fluid">
 	   <h2>Component to Rally</h2>
-	   <p>Choose the components to rally with:</p>
-	   <form role="form" action="/rallybench/{{username}}/deployment/" method="post">
+	   <p>Choose the components to rally with:</p>	   
 	    {% for atype in scenariotypes %}
 		<label class="checkbox-inline">
 		   <input type="checkbox" name = "{{ atype }}" value="{{ atype }}"> {{ atype }}
 		</label>
-	    {% endfor %}
-	   </form>
+	    {% endfor %}	  
  	 </div>
 	 <div class="container-fluid">
 	 <h2 class="sub-header"> Scenarios ({{numscenarios}})</h2>
@@ -136,7 +136,7 @@
 		{% for scene in scenarios %}
 		      <tr>		 
 			<td>
-            		  <input type="checkbox" name="scenario_selector" style="text-align:center; vertical-align: middle;">    
+            		  <input type="checkbox" name="{{ scene.scenario_type }}"  value= "{{ scene.scenario_file_name }}" style="text-align:center; vertical-align: middle;">    
 			</td> 
 			<td>{{ scene.scenario_type }}</td>
 			<td>{{ scene.scenario_file_name }}</td>
@@ -145,9 +145,18 @@
 	     </tbody>
            </table>
           </div>	
-	</div>
+	</div>	
+	<div class="form-group">        
+	  <div class="col-sm-offset-2 col-sm-25">
+	    <form class="form-horizontal" action="." method="post">	 	
+	 	<input type="submit" class="btn btn-success" value="Run Scenario" name="mybtn">
+		{% csrf_token %}
+	    </form>
+	  </div>
+	</div>	
+	</form>      		
 	<script type="text/javascript" src= "{% static "rallybench/jquery/jquery-2.1.1.min.js" %}"></script>
 	<script type="text/javascript" src= "{% static "rallybench/bootstrap-3.2.0-dist/js/bootstrap.min.js" %}"></script>
-    <script src="./Dashboard Template for Bootstrap_files/ie10-viewport-bug-workaround.js"></script>
+        <script src="./Dashboard Template for Bootstrap_files/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>

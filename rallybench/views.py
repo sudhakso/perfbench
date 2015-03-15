@@ -130,9 +130,50 @@ def deployment(request, username):
 			'username': username		
 	    		})
 		return render_to_response('rallybench/error.html', context_instance=errorcontext)
+	
+	#Run Scenario
+	if request.POST.get('mybtn'): 
+		print 'POST Request hit'
+		print request.POST
+		
+		#<QueryDict: {u'csrfmiddlewaretoken': [u'VuoRMysrosOyXq9vDaaaBxiW2JNTHavF'], u'mybtn': [u'Run Scenario'], u'neutron': [u'neutron', 	
+		#u'create_and_update_networks.json', u'create_and_list_subnets.json', u'create_and_delete_ports.json'], u'deployment': [u'trial']}>
+		scenes = []
+		scenario_type = ''
+		if request.POST.get('neutron'):
+			scenario_type = 'neutron'
+			scenes.append(request.POST.get('neutron'))
+		elif request.POST.get('nova'):
+			scenario_type = 'nova'
+			scenes.append(request.POST.get('nova'))
+		elif request.POST.get('cinder'):
+			scenario_type = 'cinder'
+			scenes.append(request.POST.get('cinder'))
+		else:
+			scenario_type = 'unsupported'
+		print "request parsed %s/%s" % (scenario_type, scenes)
+		
+		(task_id, task_status, start_time, end_time) = create_task(request, username, deployment_friendly_name=request.POST.get('deployment'),
+									 scenario_type=scenario_type, selected_scenarios = scenes)
+		#redirect the user to the task list
+		if task_id != -1:	
+			return render_to_response('rallybench/tasklist.html', context_instance=errorcontext)
+		else:
+			errorcontext = RequestContext(request, {
+			'state': 'Fatal error while executing scenario. Happened while running task.',
+			'ErrorCode': 503,
+			'username': username,
+			'scenarios': scenes,
+			'deployment': request.POST.get('deployment')		
+	    		})
+			#redirect the user to the error page
+			return render_to_response('rallybench/error.html', context_instance=errorcontext)
 
-	#Create deployment call handler
-	if request.POST:
+	#Create deployment
+	if request.POST.get('createdepl'): 
+		print 'POST request hit'
+		print request.POST
+
 		friendly_name = request.POST.get('name')
 
 		deployment_type = request.POST.get('type')
@@ -153,13 +194,13 @@ def deployment(request, username):
 							osc_tenant_name=osc_tenant_name, 	
 							osc_tenant_user=osc_tenant_user_name, 
 							osc_tenant_password=osc_tenant_password)
-		#if deployment_id == -1:
-		#	errorcontext = RequestContext(request, {
-		#	'state': 'Fatal error while creating a deployment.',
-		#	'ErrorCode': 503,
-		#	'username': username		
-	    	#	})
-		#	return render_to_response('rallybench/error.html', context_instance=errorcontext)
+		if deployment_id == -1:
+			errorcontext = RequestContext(request, {
+			'state': 'Fatal error while creating a deployment.',
+			'ErrorCode': 503,
+			'username': username		
+	    		})
+			return render_to_response('rallybench/error.html', context_instance=errorcontext)
 	
 		allservices_up = True
 		availability = rallycmd.deployment_check(friendly_name)
@@ -268,7 +309,7 @@ def result(request, username):
 
 #run a rally task
 #create a rallytask instance and store objects
-def create_task(request, username, deployment_friendly_name, scenario_objs_selected = []):
+def create_task(request, username, deployment_friendly_name, scenario_type, selected_scenarios = []):
 	#TBD: User home directory to be set via profile
 	rallycmd = RallyUtility('/usr/local/bin/', '/home/%s/rally' % (username), '/home/%s' % (username))
 
@@ -282,21 +323,21 @@ def create_task(request, username, deployment_friendly_name, scenario_objs_selec
 	    		})
 		return render_to_response('rallybench/error.html', context_instance=errorcontext)
 
-	#names are enough	
-	scenario_names = []
-	(task_id, task_status, start_time, end_time) = rallycmd.rally_run_scenarios(deployment_friendly_name, scenario_names)
-	
+	(task_id, task_status, start_time, end_time) = rallycmd.rally_run_scenarios(deployment_friendly_name, scene_type=scenario_type, scenario_listing=selected_scenarios)	
 	#Add task to the databse for tracking
+	print "Task stats %s:%s:%s:%s" % (task_id, task_status, start_time, end_time) 
 	if task_id != -1:
 		task = RallyTask(user_id=auser, task_id=task_id)
 		task.status = task_status
-		for aobj in scenario_objs_selected:
+		task.created_time = start_time
+		task.finished_time = end_time
+		
+		print "linking scenarios"
+		#Save all scenarios associated
+		for ascenario in selected_scenarios:
+			aobj = Scenario.objects.get(scenario_file_name=ascenario)
 			task.scenarios.add(aobj)
-			if task_status == 'started' or task_status == 'finished':
-				task.created_time = start_time
-				task.task_status = task_status
-				if end_time != None:
-					task.finished_time = end_time					
+													
 		task.save()
 	
 
