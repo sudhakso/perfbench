@@ -26,6 +26,13 @@
   <body>
 	<div class="container-fluid">
 	 <h2 class="sub-header">Task Lists ({{numtasks}})</h2>
+	 <div class="form-group">        
+	  <div class="col-sm-offset-2 col-sm-25">
+	    <form class="form-horizontal" action="." method="post">	 	
+	 	<input type="submit" class="btn btn-success" value="Clear All" name="cleartasks">
+		{% csrf_token %}
+	    </form>
+	  </div>
           <div class="table-responsive">
            <table class="table table-striped">
              <thead>
@@ -33,7 +40,7 @@
 		 <th>Select</th>
                  <th>Task Id</th>
 		 <th>Deployment Used</th>
-                 <th>Scenarios Verified</th>
+                 <th>Scenarios Checked</th>
 		 <th>Created (Finished) Time</th>
                  <th>Output</th>
                  <th>Status</th>
@@ -47,10 +54,25 @@
 		</td> 
 		<td>{{ task.task_id }}</td>
 		<td>{{ task.deployment_name }}</td>
-		<td>{{ scenarios }}</td> 
-		<td>{{ task.created }} ({{task.finished}})</td>
-		<td>{{ task.output_folder }}</td>
-		<td>{{ task.is_running }}</td>
+		<td>{% for ascene in scenarios %}
+		    {{ ascene }}</br>
+	            {%endfor%}
+		</td> 
+		<td>{{ task.created_time }} ({{task.finished_time}})</td>
+		<td>{{ task.task_output_html }} </td>
+		<td>{{ task.task_status }}</br>
+		    <div class="dropdown">
+		        <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown"> Modify
+		        <span class="caret"></span></button>
+		        <ul class="dropdown-menu" role="menu" aria-labelledby="modify">
+		          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Run again</a></li>
+		          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Delete</a></li>
+		          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Modify</a></li>
+		          <li role="presentation" class="divider"></li>
+		          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Help</a></li>
+		        </ul>
+		      </div>
+		</td>
 	       </tr>
 		{%endfor%}
 	     </tbody>

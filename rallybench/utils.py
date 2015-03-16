@@ -36,7 +36,8 @@ class RallyUtility:
                 #/usr/bin/rally, rally/samples/tasks/scenarios/nova, scenario.json
                 'Execute_rallytests' : '%s/rally -v --rally-debug task start %s 2>&1 | tee %s/%s',
                 #/usr/bin/rally, /home/sudhakso, taskid.html
-                'View_report' : '%s/rally task report %s --out %s/%s',
+                #rally task report 62c8612f-6b8f-4881-8858-5790f8874c0c --out output.html
+                'Generate_report' : '%s/rally task report %s --out %s/%s.html',
                 #/usr/bin/rally, /home/sudhakso, name
                 'Deployment_destroy': '%s/rally deployment destroy %s',
                 #/usr/bin/rally, /home/sudhakso, name
@@ -177,6 +178,7 @@ class RallyUtility:
         task_status = 'build'
         started_time = timezone.now()
         finished_time = timezone.now()
+        path_to_report = ''
         
         #run the command and match the result
         try :
@@ -199,7 +201,7 @@ class RallyUtility:
     
         #validate deployment set to use    
         if deployment_ready_to_use == False:
-            return (task_id, task_status, started_time, finished_time)
+            return (task_id, task_status, started_time, finished_time, path_to_report)
     
         #load the scenario files
         #TBD : Scenario collage	    
@@ -237,17 +239,28 @@ class RallyUtility:
                                 if task_status == 'started':
 						          started_time = timezone.now()
                                 elif task_status == 'finished' or task_status == 'failed':
-						          finished_time = timezone.now()                   
+						          finished_time = timezone.now()                    
+                    if task_status == 'finished':
+                         (exitCode, path_to_report) = self.rally_generate_report(task_id)
                 except Exception:
                     pass                          
-            return (task_id, task_status, started_time, finished_time)
+            return (task_id, task_status, started_time, finished_time, path_to_report)
 
-    def rally_launch_report(self, task_id):
-        pass
-
-    def load_cmd_table(self) :
-        pass
-   
+    def rally_generate_report(self, task_id):
+        #rally task report d45c1d07-1489-46f1-84de-660c8ad7206c --out output.html
+        rally_cmdline = self.cmdtable['Generate_report'] % (self.bindir, task_id, self.userdir,task_id)
+        pat_to_match = ''
+        exitCode = -1
+        output = ''
+        matched_lines = []
+        
+        #run the command and match the result
+        try :
+            (exitCode, output, matched_lines) = self.execute(rally_cmdline, pat_to_match)
+        except Exception:
+            pass
+        return (exitCode, self.userdir + task_id + '.html')
+    
     #Utility method to execute and list the (interested) output
     def execute(self, command, patmatch=None):        
         matched_lines = []

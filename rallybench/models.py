@@ -86,16 +86,21 @@ class RallyTask(models.Model):
 	user_id = models.ForeignKey(RallyUser)
 	#scenarios in use
 	scenarios = models.ManyToManyField(Scenario)
-
 	#Key
 	task_id = models.CharField(max_length=50, primary_key=True)
-
 	is_running = models.BooleanField(default=False)
+	
 	output_folder = models.CharField(max_length=256)
+	
 	#created time
 	created_time   = models.DateField()
 	finished_time  = models.DateField()
-	task_status    = models.CharField(max_length=50, default='Build')
+	
+	task_status    = models.CharField(max_length=50, default='Build')	
+	#Only errors and warnings grep'd
+	task_error_log       = models.CharField(max_length=4000, default='To be done!')
+	#task out html
+	task_output_html     = models.CharField(max_length=256, default='')
 	#deployment used
 	deployment_name = models.CharField(max_length=50, default='default')
 	
