@@ -259,7 +259,7 @@ class RallyUtility:
             (exitCode, output, matched_lines) = self.execute(rally_cmdline, pat_to_match)
         except Exception:
             pass
-        return (exitCode, self.userdir + task_id + '.html')
+        return (exitCode, self.userdir + '/' + task_id + '.html')
     
     #Utility method to execute and list the (interested) output
     def execute(self, command, patmatch=None):        

@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader, RequestContext
 from django.utils import timezone
 from django.conf import settings
+from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 
 from rallybench.models import RallyUser,RallyUserSession, Scenario, Deployment, RallyTask
 from rallybench.utils import UserContext
@@ -159,13 +161,34 @@ def deployment(request, username):
 		
 		(task_id, task_status, start_time, end_time) = create_task(request, username, deployment_friendly_name=request.POST.get('deployment'),
 									 scenario_type=scenario_type, selected_scenarios = scenes)
-		errorcontext = RequestContext(request, {
-			'state': 'Task completed.',
-			'ErrorCode': 200,
-			'username': username		
-	    		})
+		
+		tasks = []
+		sceneobjs = []
+		scenes = []
+		numtasks = 0
+		try:
+			taskQuerySet = RallyTask.objects.filter(user_id__username=username)
+			for atask in taskQuerySet:
+				numtasks = numtasks + 1
+				sceneobjs = atask.scenarios.all()
+				for ascene in sceneobjs:
+					scenes.append(ascene.scenario_file_name)		
+				tasks.append(atask)
+		except RallyTask.DoesNotExist:
+			pass
+		#Create a user context to show in tasklist
+		_context = {
+			'username': username, 
+			'numtasks': len(tasks),
+			'scenarios' : scenes,
+			'tasks': tasks
+		   }
+		
+		context = RequestContext(request, _context)
 		#redirect the user to the task list
-		return render_to_response('rallybench/tasklist.html', context_instance=errorcontext)
+		#return render_to_response('rallybench/tasklist.html', context_instance=context)
+		return HttpResponseRedirect(reverse('task',args=(),
+    							kwargs={'username': username}))
 		
 	#Create deployment
 	if request.POST.get('createdepl'): 
@@ -308,8 +331,7 @@ def task(request, username):
 			taskset = RallyTask.objects.filter(task_id=taskid)
 			atask = taskset[0]		
 			resultfile =  os.path.join(settings.BASE_DIR, 'rallybench/templates/rallybench/userresult.html')
-			##test
-			atask.task_output_html = '/home/sudhakso/%s.html' %(taskid)
+			##test			
 			if atask.task_status == 'finished':	
 				with open(atask.task_output_html) as f:
 					with open(resultfile, "w+") as f1:
