@@ -4,12 +4,17 @@ from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from django.template import loader, RequestContext
 from django.utils import timezone
+from django.conf import settings
 
 from rallybench.models import RallyUser,RallyUserSession, Scenario, Deployment, RallyTask
 from rallybench.utils import UserContext
 from rallybench.utils import RallyUtility
 
 import uuid
+import os
+import webbrowser
+
+from string import lower
 	
 # Create your views here.
 # '/'
@@ -293,9 +298,39 @@ def task(request, username):
 			'scenarios' : scenes,
 			'tasks': tasks
 		   }
+	
+	#Launch report POST call
+	if request.POST:		
+		output = ''
+		taskid = request.POST.get('taskid')
+		
+		try:
+			taskset = RallyTask.objects.filter(task_id=taskid)
+			atask = taskset[0]		
+			resultfile =  os.path.join(settings.BASE_DIR, 'rallybench/templates/rallybench/userresult.html')
+			##test
+			atask.task_output_html = '/home/sudhakso/%s.html' %(taskid)
+			if atask.task_status == 'finished':	
+				with open(atask.task_output_html) as f:
+					with open(resultfile, "w+") as f1:
+						for line in f:
+							f1.write(line)				
+				url = "file://%s" % (resultfile)
+				new = 2
+				webbrowser.open_new_tab(url)
+				pass
+			
+		except RallyTask.DoesNotExist:
+			errorcontext = RequestContext(request, {
+												'state': 'Fatal error while loading user. Happened while creating benchmark task.',
+												'ErrorCode': 503,
+												'username': username		
+	    							})
+			return render_to_response('rallybench/error.html', context_instance=errorcontext)
+		
 	tasklistcontext = RequestContext(request, _context)		
 	return render_to_response('rallybench/tasklist.html', context_instance=tasklistcontext)
-
+	
 # '/username/result/'
 def result(request, username):
 	return HttpResponse("For user %s, listing result ..." % (username))
@@ -336,7 +371,8 @@ def create_task(request, username, deployment_friendly_name, scenario_type, sele
 				if len(resultset):
 					task.scenarios.add(resultset[0])
 					task.deployment_name = deployment_friendly_name
-					task.save()					
+					task.save()				
+					
 			except Scenario.DoesNotExist:
 				pass
 	

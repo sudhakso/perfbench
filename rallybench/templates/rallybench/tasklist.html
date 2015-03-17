@@ -36,6 +36,7 @@
           <div class="table-responsive">
            <table class="table table-striped">
              <thead>
+	       <form class="form-horizontal" action="." method="post">	
                <tr>
 		 <th>Select</th>
                  <th>Task Id</th>
@@ -50,7 +51,7 @@
 		{% for task in tasks %}
 	      <tr>		
 		<td>
-        	 <input type="checkbox" name="task_selector" style="text-align:center; vertical-align: middle;">    
+        	 <input type="checkbox" name="taskid" value="{{ task.task_id}}" style="text-align:center; vertical-align: middle;">    
 		</td> 
 		<td>{{ task.task_id }}</td>
 		<td>{{ task.deployment_name }}</td>
@@ -59,8 +60,10 @@
 	            {%endfor%}
 		</td> 
 		<td>{{ task.created_time }} ({{task.finished_time}})</td>
-		<td>{{ task.task_output_html }} </td>
-		<td>{{ task.task_status }}</br>
+		<td> 	
+	 	   <input type="submit" class="btn btn-success" value="Launch Report" name="launchreport">
+		 </td>
+		 <td> {{ task.task_status }}</br>
 		    <div class="dropdown">
 		        <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown"> Modify
 		        <span class="caret"></span></button>
@@ -74,6 +77,8 @@
 		      </div>
 		</td>
 	       </tr>
+		{% csrf_token %}
+	       </form> 	       
 		{%endfor%}
 	     </tbody>
            </table>
