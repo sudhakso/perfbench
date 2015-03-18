@@ -1,0 +1,137 @@
+body{
+	padding-top: 120px;
+}
+
+
+hr{
+	border-top: 1px solid #dcdcdc;
+	border-bottom: 1px solid #f6f6f6;
+}
+
+p{
+	color: #666;
+}
+
+/**************************************
+** Navigation Bar style code       ****
+**************************************/
+
+.navigation{
+	background-color: #2d3538;
+	width: 100%;
+}
+
+.navbar {
+	height: 100px;
+	background-color: #0096D6
+}
+
+.navbar .btn-navbar{
+	background-image: none;
+	filter: none;
+	
+	background: #2d3538;
+	margin-top: 15px;
+}
+
+.navbar-inner{
+	border-radius: 0px;
+	
+	background-image: none;
+	filter: none;
+	
+	background: #2d3538;
+	border: none;
+	box-shadow: none;
+}
+
+
+
+.navbar .nav > li > a{
+	color: #8b8d8c;
+	text-shadow: none;
+	background-color: #0096D6;
+	margin-top: 15px;
+	font-size: 16px;
+	font-weight: normal;
+}
+
+
+
+.navbar .nav > li > a:hover{
+	color: #d9d9d9;
+	background-color: none;
+}
+
+/* changes color of active links*/
+.navbar .nav .active > a, .navbar .nav .active > a:hover {
+    background-color: #2d3538;
+	color: #d9d9d9;
+	box-shadow: none;
+}
+
+
+/* change color of active drop down menu or menu toggle link*/
+.navbar .nav .dropdown.open a.dropdown-toggle{
+	background-color: #2d3538;
+	color: #d9d9d9;
+}
+
+/* changes background color of drop down menu*/
+.navbar .nav .dropdown-menu{
+	background-image: none;
+	background-color: #2d3538;
+}
+
+/* changes background color of upwards arrow of drop down menu menu*/
+.navbar .nav .dropdown-menu:after {
+  border-bottom: 6px solid #2d3538 !important; /* change color here, modified for a black arrow */
+}
+
+/* changes link color of drop down menu*/
+.navbar .nav .dropdown.open a{
+	color: #8b8d8c;
+}
+
+/* changes link color of drop down menu on hover*/
+.navbar .nav .dropdown-menu > li > a:hover{
+	background-image: none;
+	background-color: #2d3538;
+	color: #d9d9d9;
+}
+
+
+.navbar .divider-vertical{
+	line-height: 40px;
+	
+}
+
+.navbar .brand{
+	margin-top: 15px;
+	margin-right: 15px;
+	text-shadow: none;
+	color: #e6e6e6;
+	font-size: 26px;
+}
+
+.navbar .brand:hover{
+	color: #fff;
+}
+
+.navbar .pull-right > li > a{
+	background-color: #64a7ca;
+	color: #fff;
+	margin-left: 10px;
+}
+
+.navbar .pull-right > li > a:hover{
+	background-color: #81b8d4;
+	color: #fff;
+}
+
+
+.sidebar {
+  position: fixed;
+  top: 90px;
+}
+
