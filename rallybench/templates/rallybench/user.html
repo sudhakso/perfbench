@@ -1,127 +1,295 @@
 {% load staticfiles %}
 <!DOCTYPE html>
-<!-- saved from url=(0044)http://getbootstrap.com/examples/dashboard/# -->
 <html lang="en">
 
-	<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    	<meta charset="utf-8">
-    	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-    	<meta name="viewport" content="width=device-width, initial-scale=1">
-    	<meta name="description" content="">
-    	<meta name="author" content="">
-	    <title>Rally for {{username}}</title>
+<head>
 
-    	<!-- Bootstrap core CSS -->
-		<link type= "text/css" rel= "stylesheet" href= "{% static "rallybench/bootstrap-3.2.0-dist/css/bootstrap.css" %}"/>
-		<link type= "text/css" rel= "stylesheet" href= "{% static "rallybench/bootstrap-3.2.0-dist/css/bootstrap.min.css" %}"/>
-		<link type= "text/css" rel= "stylesheet" href= "{% static "rallybench/bootstrap-3.2.0-dist/css/dashboard.css" %}"/>
-    	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    	<!--[if lt IE 9]>
-      		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    	<![endif]-->
-  </head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-  <body>
+    <title>SB Admin - Bootstrap Admin Template</title>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="./Dashboard Template for Bootstrap_files/Dashboard Template for Bootstrap.html">Rally Bench</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">            
-            <li><a href="/rallybench/{{ username }}/session">Settings</a></li>
-            <li><a href="/rallybench/{{ username }}/session">Profile</a></li>
-            <li><a href="/rallybench/help.xml">Help</a></li>
-          </ul>
-          <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search...">
-          </form>
-        </div>
-      </div>
-    </nav>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
-            <li><a href="/rallybench/{{ username }}/deployment" target="_parent">Deployments <span class="badge">{{numdeployments}}</span> </a></li>
-            <li><a href="/rallybench/{{ username }}/scenario" target="_parent">Scenarios <span class="badge">{{numscenarios}}</span> </a></li>
-            <li><a href="/rallybench/{{ username }}/tasklist" target="_parent">Benchmark Tasks <span class="badge">{{activetasks}}</span> </a></li>
-            <li><a href="/rallybench/{{ username }}/result"target="_parent">Results <span class="badge">{{resultssummary}}</span></a></li>
-          </ul>          
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
+    <link type= "text/css" rel= "stylesheet" href= "{% static "rallybench/bootstrap-3.2.0-dist/css/bootstrap.css" %}"/>
+    <link type= "text/css" rel= "stylesheet" href= "{% static "rallybench/bootstrap-3.2.0-dist/css/bootstrap.min.css" %}"/>
 
-          <div class="row placeholders">
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="200x200" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjxkZWZzLz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzBEOEZEQiIvPjxnPjx0ZXh0IHg9Ijc1LjUiIHk9IjEwMCIgc3R5bGU9ImZpbGw6I0ZGRkZGRjtmb250LXdlaWdodDpib2xkO2ZvbnQtZmFtaWx5OkFyaWFsLCBIZWx2ZXRpY2EsIE9wZW4gU2Fucywgc2Fucy1zZXJpZiwgbW9ub3NwYWNlO2ZvbnQtc2l6ZToxMHB0O2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPjIwMHgyMDA8L3RleHQ+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-              <h4>Scenarios</h4>
-              <span class="text-muted"></span>
+    <!-- Custom CSS -->
+    <link rel= "stylesheet" href= "{% static "rallybench/lib/css/sb-admin.css" %}"/>
+
+    <!-- Morris Charts CSS -->
+    <link rel= "stylesheet" href= "{% static "rallybench/lib/css/morris.css" %}"/>
+
+    <!-- Custom Fonts -->
+    <link type= "text/css" rel= "stylesheet" href= "{% static "rallybench/lib/css/font-awesome.min.css" %}"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">Rally User</a>
             </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/200x200/auto/vine" class="img-responsive" alt="200x200" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjxkZWZzLz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzM5REJBQyIvPjxnPjx0ZXh0IHg9Ijc1LjUiIHk9IjEwMCIgc3R5bGU9ImZpbGw6IzFFMjkyQztmb250LXdlaWdodDpib2xkO2ZvbnQtZmFtaWx5OkFyaWFsLCBIZWx2ZXRpY2EsIE9wZW4gU2Fucywgc2Fucy1zZXJpZiwgbW9ub3NwYWNlO2ZvbnQtc2l6ZToxMHB0O2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPjIwMHgyMDA8L3RleHQ+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-              <h4>Attempts</h4>
-              <span class="text-muted">Number of run(s)</span>
+            <!-- Top Menu Items -->
+            <ul class="nav navbar-right top-nav">                               
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"> {{ username }} <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#"> Profile</a>
+                        </li>
+                        <li>
+                            <a href="#"> Task list</a>
+                        </li>
+                        <li>
+                            <a href="#"> Settings</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#"> Log Out</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav side-nav">
+
+        		<li class="active">
+			   <a href="#">Overview <span class="sr-only">(current)</span></a></li>
+			<li>
+			   <a href="/rallybench/{{ username }}/deployment" target="_parent"> 
+					Deployments <span class="badge">{{numdeployments}}</span> </a>
+        	        </li>
+        	       <li><a href="/rallybench/{{ username }}/scenario" target="_parent">
+					Scenarios <span class="badge">{{numscenarios}}</span> </a>
+		       </li>
+        	       <li><a href="/rallybench/{{ username }}/tasklist" target="_parent">
+					Benchmark Tasks <span class="badge">{{numtasks}}</span> </a>
+        	       </li>
+        	       <li><a href="/rallybench/{{ username }}/result"target="_parent"> 
+					History <span class="badge">{{resultssummary}}</span></a>
+			</li>
+                </ul>
             </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/200x200/auto/sky" class="img-responsive" alt="200x200" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjxkZWZzLz48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzBEOEZEQiIvPjxnPjx0ZXh0IHg9Ijc1LjUiIHk9IjEwMCIgc3R5bGU9ImZpbGw6I0ZGRkZGRjtmb250LXdlaWdodDpib2xkO2ZvbnQtZmFtaWx5OkFyaWFsLCBIZWx2ZXRpY2EsIE9wZW4gU2Fucywgc2Fucy1zZXJpZiwgbW9ub3NwYWNlO2ZvbnQtc2l6ZToxMHB0O2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPjIwMHgyMDA8L3RleHQ+PC9nPjwvc3ZnPg==" data-holder-rendered="true">
-              <h4>Scenario Exercised</h4>
-              <span class="text-muted">Used Scenarios</span>
+            <!-- /.navbar-collapse -->
+        </nav>
+
+        <div id="page-wrapper">
+
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            Dashboard <small> Overview </small>
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li class="active">
+                                Dashboard
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <!-- /.row -->
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="alert alert-info alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                              <strong>Alpha Release! "Welcome Back" </strong> 
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <div class="row">                                    
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge">{{ numdeployments }}</div>
+                                        <div><b>Cloud Deployment</b></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/rallybench/{{ username }}/deployment">
+                                <div class="panel-footer">
+                                    <span class="pull-left">View Details</span>
+                                    <span class="pull-right"></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="panel panel-green">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge">{{ numtasks }}</div>
+                                        <div><b>New Tasks</b></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/rallybench/{{ username }}/tasklist">
+                                <div class="panel-footer">
+                                    <span class="pull-left">View Details</span>
+                                    <span class="pull-right"></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="panel panel-yellow">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge">{{ numscenarios }}</div>
+                                        <div><b>Scenarios</b></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/rallybench/{{ username }}/scenario">
+                                <div class="panel-footer">
+                                    <span class="pull-left">View Details</span>
+                                    <span class="pull-right"></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="panel panel-red">
+                            <div class="panel-heading">
+                                <div class="row">                                    
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge">0</div>
+                                        <div><b>Failures</b></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/rallybench/{{ username }}/result">
+                                <div class="panel-footer">
+                                    <span class="pull-left">View Details</span>
+                                    <span class="pull-right"></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"> Activity Donut</h3>
+                            </div>			    
+                            <div class="panel-body">
+                                <div id="morris-donut-chart"></div>
+				<h> Comming Soon! </h>
+                                <div class="text-right">
+                                    <a href="#">View Details </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"> Tasks Panel</h3>
+                            </div>			    
+			    <div class="list-group">
+			       {% for task in tasks %}
+                               <a href="/rallybench/{{ username }}/tasklist/{{ task.task_id }}" class="list-group-item"> 
+				<span class="badge">{{ task.deployment_name }}</span> 
+				  {{ task.task_id }}
+                               </a>		   	        
+                             {%endfor%}
+			    </div>
+                            <div class="panel-body">
+                                <div class="list-group">                                    
+                                </div>
+                                <div class="text-right">
+                                    <a href="#">View All Activity </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"> Transactions Panel</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>Task Time</th>
+						<th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody> 
+					 {% for transaction in transactions %}
+					  <tr>
+                                                <td>{{transaction.trans_id}}</td>
+                                                <td>{{transaction.time}}</td>
+                                                <td>{{transaction.msg}}</td>
+                                           </tr>  
+					{%endfor%}                                         
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-right">
+                                    <a href="/rallybench/{{ username }}/tasklist">View All Transactions </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
             </div>
-           </div>
-          <h2 class="sub-header">Top 5 Scenario(s)</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>S.No.</th>
-                  <th>Scenario Name</th>
-                  <th>Run Date</th>
-                  <th>Result</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Lorem</td>
-                  <td>someday in past</td>
-                  <td>dolor</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>amet</td>
-                  <td>someday in past</td>
-                  <td>output</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Integer</td>
-                  <td>someday in past</td>
-                  <td>output</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            <!-- /.container-fluid -->
+
         </div>
-      </div>
+        <!-- /#page-wrapper -->
+
     </div>
+    <!-- /#wrapper -->
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-	<script type="text/javascript" src= "{% static "rallybench/jquery/jquery-2.1.1.min.js" %}"></script>
-	<script type="text/javascript" src= "{% static "rallybench/bootstrap-3.2.0-dist/js/bootstrap.min.js" %}"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="./Dashboard Template for Bootstrap_files/ie10-viewport-bug-workaround.js"></script>
-  
+    <!-- Morris Charts JavaScript -->
+    <script type="text/javascript" src= "{% static "rallybench/jquery/raphael.min.js" %}"></script>
+    <script type="text/javascript" src= "{% static "rallybench/jquery/morris.min.js" %}"></script>
+    <script type="text/javascript" src= "{% static "rallybench/jquery/morris-data.js" %}"></script>
+    <script type="text/javascript" src= "{% static "rallybench/jquery/jquery-2.1.1.min.js" %}"></script>
+    <script type="text/javascript" src= "{% static "rallybench/bootstrap-3.2.0-dist/js/bootstrap.min.js" %}"></script>
+</body>
 
-<div id="global-zeroclipboard-html-bridge" class="global-zeroclipboard-container" title="" style="position: absolute; left: 0px; top: -9999px; width: 15px; height: 15px; z-index: 999999999;" data-original-title="Copy to clipboard">      <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" id="global-zeroclipboard-flash-bridge" width="100%" height="100%">         <param name="movie" value="/assets/flash/ZeroClipboard.swf?noCache=1425461755247">         <param name="allowScriptAccess" value="sameDomain">         <param name="scale" value="exactfit">         <param name="loop" value="false">         <param name="menu" value="false">         <param name="quality" value="best">         <param name="bgcolor" value="#ffffff">         <param name="wmode" value="transparent">         <param name="flashvars" value="trustedOrigins=getbootstrap.com%2C%2F%2Fgetbootstrap.com%2Chttp%3A%2F%2Fgetbootstrap.com">         <embed src="/assets/flash/ZeroClipboard.swf?noCache=1425461755247" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="100%" height="100%" name="global-zeroclipboard-flash-bridge" allowscriptaccess="sameDomain" allowfullscreen="false" type="application/x-shockwave-flash" wmode="transparent" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="trustedOrigins=getbootstrap.com%2C%2F%2Fgetbootstrap.com%2Chttp%3A%2F%2Fgetbootstrap.com" scale="exactfit">                </object></div><svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" preserveAspectRatio="none" style="visibility: hidden; position: absolute; top: -100%; left: -100%;"><defs></defs><text x="0" y="10" style="font-weight:bold;font-size:10pt;font-family:Arial, Helvetica, Open Sans, sans-serif;dominant-baseline:middle">200x200</text></svg></body></html>
+</html>
+

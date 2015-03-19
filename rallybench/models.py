@@ -104,6 +104,19 @@ class RallyTask(models.Model):
 	#deployment used
 	deployment_name = models.CharField(max_length=50, default='default')
 	
-
+class Transaction(models.Model):
+	#user reference
+	user_id = models.ForeignKey(RallyUser)
 	
+	#transaction id
+	trans_id = models.IntegerField(primary_key=True)
+	
+	#type
+	type = models.CharField(max_length=50, default='Deployment Add')
+	
+	#
+	time = models.DateTimeField()
+	
+	#message
+	msg = models.CharField(max_length=256, default='')
 

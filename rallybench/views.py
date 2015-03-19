@@ -8,7 +8,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 
-from rallybench.models import RallyUser,RallyUserSession, Scenario, Deployment, RallyTask
+from rallybench.models import RallyUser,RallyUserSession, Scenario, Deployment, RallyTask, Transaction
 from rallybench.utils import UserContext
 from rallybench.utils import RallyUtility
 
@@ -52,7 +52,10 @@ def show_userdash(request, context):
 		'numdeployments': context.args['numdeployments'],
 		'numscenarios': context.args['numscenarios'],
 		'deployment': context.deployment, 
-		'scenario': context.scenarios		
+		'scenario': context.scenarios,
+		'numtasks': context.args['numtasks'],
+		'tasks':context.args['tasks'],
+		'transactions': context.args['transactions']		
 	    })
 	return render_to_response('rallybench/user.html', context_instance=usercontext)
 
@@ -85,10 +88,11 @@ def loginuser(request, user,passwd):
 
 	#for the user, get the deployments, list the available scenarios
 	real_deployments = False
-	numdeployments = 0
-	numscenarios = 0
+	numdeployments = 0	
 	depls = []
 	scenes = []
+	tasks = []
+	trans = []
 	try:
 		deplQuerySet = Deployment.objects.filter(user__username=user)
 		for adepl in deplQuerySet:
@@ -97,17 +101,41 @@ def loginuser(request, user,passwd):
 		real_deployments = True
 	except Deployment.DoesNotExist:
 		pass		
-	#senarios are listed only for users with deployment
+	
+	#scenarios are listed only for users with deployment
 	if real_deployments:
 		try:
 			#TBD
 			scenes = Scenario.objects.all()	
 		except Scenario.DoesNotExist:
 			pass		
+	
+	#tasks listed only for users with deployment
+	if real_deployments:	
+		try:
+			taskQuerySet = RallyTask.objects.filter(user_id__username=user)
+			for atask in taskQuerySet:			
+				tasks.append(atask)
+		except RallyTask.DoesNotExist:
+			print 'cannot read tasks for the user %s' % (user)
+			pass
+	
+	#transactions for the user
+	try:
+		transset = Transaction.objects.filter(user_id__username=user)
+		for atransaction in transset:			
+			trans.append(atransaction)
+	except Transaction.DoesNotExist:
+			print 'Dont have  any transaction for the user %s' % (user)
+			pass
+	print 'heavy trans %s' %(len(trans)) 
 	#Create a user context to show in dashboard
 	ctxt = UserContext(name=user.username, deployments=depls, scenarios=scenes, 
 				args={  'numdeployments':numdeployments, 
-					'numscenarios':numscenarios,
+					'numscenarios':len(scenes),
+					'numtasks':len(tasks),
+					'tasks':tasks,
+					'transactions':trans,
 					'state': state,
 					'username': user
 					})
@@ -354,8 +382,8 @@ def task(request, username):
 	return render_to_response('rallybench/tasklist.html', context_instance=tasklistcontext)
 	
 # '/username/result/'
-def result(request, username):
-	return HttpResponse("For user %s, listing result ..." % (username))
+def result(request, username):	
+	return render_to_response('rallybench/feelgooduser.html', context_instance=None)
 
 #run a rally task
 #create a rallytask instance and store objects
